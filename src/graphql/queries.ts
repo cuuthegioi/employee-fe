@@ -4,28 +4,66 @@ export const GET_EMPLOYEES = gql`
   query GetEmployees {
     employees {
       id
-      name
-      position
+      firstName
+      lastName
+      department
+      address
+      phoneNumber
+      createdAt
     }
   }
 `;
 
 export const ADD_EMPLOYEE = gql`
-  mutation AddEmployee($name: String!, $position: String!) {
-    addEmployee(name: $name, position: $position) {
+  mutation AddEmployee(
+    $firstName: String!
+    $lastName: String!
+    $department: String!
+    $address: String!
+    $phoneNumber: String!
+  ) {
+    addEmployee(
+      firstName: $firstName
+      lastName: $lastName
+      department: $department
+      address: $address
+      phoneNumber: $phoneNumber
+    ) {
       id
-      name
-      position
+      firstName
+      lastName
+      department
+      address
+      phoneNumber
+      createdAt
     }
   }
 `;
 
 export const UPDATE_EMPLOYEE = gql`
-  mutation UpdateEmployee($id: ID!, $name: String!, $position: String!) {
-    updateEmployee(id: $id, name: $name, position: $position) {
+  mutation UpdateEmployee(
+    $id: ID!
+    $firstName: String!
+    $lastName: String!
+    $department: String!
+    $address: String!
+    $phoneNumber: String!
+  ) {
+    updateEmployee(
+      id: $id
+      firstName: $firstName
+      lastName: $lastName
+      department: $department
+      address: $address
+      phoneNumber: $phoneNumber
+    ) {
       id
-      name
-      position
+      firstName
+      lastName
+      department
+      address
+      phoneNumber
+      createdAt
     }
   }
 `;

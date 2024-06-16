@@ -12,8 +12,14 @@ const { Title } = Typography;
 const App: React.FC = () => {
   return (
     <Layout className="layout">
-      <Header>
-        <Title style={{ color: "white" }} level={2}>
+      <Header
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Title style={{ color: "white", margin: 0 }} level={2}>
           Employee Management
         </Title>
       </Header>

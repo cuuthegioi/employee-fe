@@ -1,38 +1,61 @@
 import React, { useEffect, useState } from "react";
-import { useMutation } from "@apollo/client";
+
 import { Button, message, Form, Input, Modal } from "antd";
+import { useMutation } from "@apollo/client";
+import { isEqual, omit } from "lodash";
+
 import { ADD_EMPLOYEE, UPDATE_EMPLOYEE } from "../graphql/queries";
+import { TEmployee } from "../types";
 
 interface EmployeeEditFormProps {
-  visible: boolean;
-  employee: any;
+  open: boolean;
+  employee: TEmployee | null;
   refetch: () => void;
   closeModal: () => void;
 }
 
-type TForm = {
-  name: string;
-  position: string;
-};
-
 const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
-  visible,
+  open,
   employee,
   refetch,
   closeModal,
 }) => {
   const [addEmployee] = useMutation(ADD_EMPLOYEE);
   const [updateEmployee] = useMutation(UPDATE_EMPLOYEE);
-  const [form] = Form.useForm<TForm>();
-  const nameValue = Form.useWatch("name", form);
-  const positionValue = Form.useWatch("position", form);
+  const [form] = Form.useForm<TEmployee>();
+  const [isValid, setIsValid] = useState(false);
+
+  const values = Form.useWatch([], form);
 
   useEffect(() => {
-    form.setFieldsValue({
-      name: employee ? employee.name : "",
-      position: employee ? employee.position : "",
-    });
-  }, [employee, form]);
+    form
+      .validateFields({ validateOnly: true })
+      .then(() => setIsValid(true))
+      .catch(() => setIsValid(false));
+  }, [form, values]);
+
+  useEffect(() => {
+    if (open) {
+      form.setFieldsValue({
+        firstName: employee ? employee.firstName : "",
+        lastName: employee ? employee.lastName : "",
+        department: employee ? employee.department : "",
+        address: employee ? employee.address : "",
+        phoneNumber: employee ? employee.phoneNumber : "",
+      });
+    }
+  }, [open, employee, form]);
+
+  useEffect(() => {
+    if (employee) {
+      const currentValues = form.getFieldsValue();
+
+      const employeeValues = omit(employee, ["id", "createdAt"]);
+      setIsValid(!isEqual(currentValues, employeeValues));
+    } else {
+      setIsValid(true);
+    }
+  }, [form, employee]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -43,7 +66,7 @@ const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
     try {
       const values = await form.validateFields();
       if (employee) {
-        await updateEmployee({ variables: { id: employee.id, ...values } });
+        await updateEmployee({ variables: { ...values } });
         message.success("Employee updated");
       } else {
         await addEmployee({ variables: values });
@@ -59,7 +82,7 @@ const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
   return (
     <Modal
       title={employee ? "Edit Employee" : "Create Employee"}
-      open={visible}
+      open={open}
       onCancel={handleCancel}
       footer={[
         <Button key="cancel" onClick={handleCancel}>
@@ -68,8 +91,8 @@ const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
         <Button
           key="submit"
           type="primary"
-          disabled={!nameValue || !positionValue}
           onClick={handleSave}
+          disabled={!isValid}
         >
           Save
         </Button>,
@@ -80,28 +103,77 @@ const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
         onFinish={handleSave}
         layout="vertical"
         initialValues={{
-          name: employee ? employee.name : "",
-          position: employee ? employee.position : "",
+          firstName: employee ? employee.firstName : "",
+          lastName: employee ? employee.lastName : "",
+          department: employee ? employee.department : "",
+          address: employee ? employee.address : "",
+          phoneNumber: employee ? employee.phoneNumber : "",
         }}
       >
         <Form.Item
-          label="Name"
-          name="name"
+          label="First Name"
+          name="firstName"
           rules={[
-            { required: true, message: "Please input the employee name!" },
+            {
+              required: true,
+              message: "Please input the employee's first name!",
+            },
           ]}
         >
-          <Input placeholder="Enter employee name" />
+          <Input placeholder="Enter employee's first name" />
         </Form.Item>
 
         <Form.Item
-          label="Position"
-          name="position"
+          label="Last Name"
+          name="lastName"
           rules={[
-            { required: true, message: "Please input the employee position!" },
+            {
+              required: true,
+              message: "Please input the employee's last name!",
+            },
           ]}
         >
-          <Input placeholder="Enter employee position" />
+          <Input placeholder="Enter employee's last name" />
+        </Form.Item>
+
+        <Form.Item
+          label="Department"
+          name="department"
+          rules={[
+            {
+              required: true,
+              message: "Please input the employee's department!",
+            },
+          ]}
+        >
+          <Input placeholder="Enter employee's department" />
+        </Form.Item>
+
+        <Form.Item
+          label="Address"
+          name="address"
+          rules={[
+            { required: true, message: "Please input the employee's address!" },
+          ]}
+        >
+          <Input placeholder="Enter employee's address" />
+        </Form.Item>
+
+        <Form.Item
+          label="Phone Number"
+          name="phoneNumber"
+          rules={[
+            {
+              required: true,
+              message: "Please input the employee's phone number!",
+            },
+            {
+              pattern: /^\d{10}$/,
+              message: "Please input a valid phone number!",
+            },
+          ]}
+        >
+          <Input placeholder="Enter employee's phone number" />
         </Form.Item>
       </Form>
     </Modal>

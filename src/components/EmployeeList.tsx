@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_EMPLOYEES, DELETE_EMPLOYEE } from "../graphql/queries";
-import { Table, Button, message, Modal, Form, Input, Space } from "antd";
+import { Table, Button, message, Modal, Space } from "antd";
 import { TEmployee } from "../types";
 import EmployeeEditForm from "./EmployeeEditForm";
 

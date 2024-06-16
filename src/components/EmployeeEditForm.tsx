@@ -10,6 +10,11 @@ interface EmployeeEditFormProps {
   closeModal: () => void;
 }
 
+type TForm = {
+  name: string;
+  position: string;
+};
+
 const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
   visible,
   employee,
@@ -18,7 +23,9 @@ const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
 }) => {
   const [addEmployee] = useMutation(ADD_EMPLOYEE);
   const [updateEmployee] = useMutation(UPDATE_EMPLOYEE);
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<TForm>();
+  const nameValue = Form.useWatch("name", form);
+  const positionValue = Form.useWatch("position", form);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -61,6 +68,7 @@ const EmployeeEditForm: React.FC<EmployeeEditFormProps> = ({
         <Button
           key="submit"
           type="primary"
+          disabled={!nameValue || !positionValue}
           onClick={handleSave}
         >
           Save
